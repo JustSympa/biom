@@ -16,8 +16,8 @@ final diagnosisLogicProvider = FutureProvider<String>((ref) async {
 	// 2. Prepare the AI Prompt (Placeholders)
 	final String gpsInfo = "Lat: ${position.latitude}, Long: ${position.longitude}";
 	final String prompt = type == 'simple' 
-			? "Analyze this plant image at $gpsInfo..." 
-			: "Start advanced diagnosis for plant at $gpsInfo...";
+		? "Analyze this plant image at $gpsInfo..." 
+		: "Start advanced diagnosis for plant at $gpsInfo...";
 
 	// 3. AI API Call Placeholder
 	// Here is where you will eventually use the 'openai_dart' library

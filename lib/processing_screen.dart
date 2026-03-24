@@ -8,6 +8,7 @@ class ProcessingScreen extends ConsumerWidget {
 
 	@override
 	Widget build(BuildContext context, WidgetRef ref) {
+		// Watch the logic provider
 		final diagnosisAsync = ref.watch(diagnosisLogicProvider);
 
 		// Listen for completion to navigate

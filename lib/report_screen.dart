@@ -3,10 +3,10 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 
 class ReportScreen extends StatelessWidget {
-	final String reportMarkdown;
+	final String reportID;
 
 	// GoRouter passes the 'extra' object here
-	const ReportScreen({super.key, required this.reportMarkdown});
+	const ReportScreen({super.key, required this.reportID});
 
 	@override
 	Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class ReportScreen extends StatelessWidget {
 					// The Markdown Renderer
 					Expanded(
 						child: Markdown(
-							data: reportMarkdown,
+							data: "reportMarkdown",
 							selectable: true,
 							styleSheet: MarkdownStyleSheet(
 								h1: const TextStyle(color: Colors.green, fontSize: 24, fontWeight: FontWeight.bold),

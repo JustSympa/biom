@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
-  	const HomeScreen({super.key});
+		const HomeScreen({super.key});
 
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
-			appBar: AppBar(title: const Text('Plant Diagnosis History')),
+			appBar: AppBar(title: const Text('Biom')),
 			body: const Center(
 				child: Text('Your diagnosis history will appear here.'),
 			),
@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
 				icon: const Icon(Icons.add),
 			),
 		);
-  	}
+		}
 
 	void _showSelectionDialog(BuildContext context) {
 		showDialog(
@@ -50,5 +50,5 @@ class HomeScreen extends StatelessWidget {
 				],
 			),
 		);
-  	}
+		}
 }
