@@ -1,8 +1,19 @@
+import 'package:biom/kv/kv.dart';
+import 'package:biom/palette.dart';
 import 'package:flutter/material.dart';
 import 'router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-void main() {
-	runApp(const ProviderScope(child: Biom()));
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
+void main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  
+  await KVS.init();
+  
+
+  FlutterNativeSplash.remove();
+	runApp(ProviderScope(child: Biom()));
 }
 
 class Biom extends ConsumerWidget {
@@ -15,7 +26,7 @@ class Biom extends ConsumerWidget {
 			title: 'Biom',
 			theme: ThemeData(
 				useMaterial3: true,
-					colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F904B)),
+					colorScheme: ColorScheme.fromSeed(seedColor: Palette.col500),
 			),
 			routerConfig: router,
 		);
