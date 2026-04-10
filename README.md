@@ -24,7 +24,7 @@ BioM is a mobile application that helps gardeners, farmers, and plant enthusiast
 
 - **Background**: White (#FFFFFF)
 - **Foreground/Text**: Black (#000000)
-- **Brand/Accent**: Green (#0F904B)
+- **Brand/Accent**: Green (#3c8137)
 
 ### Typography
 

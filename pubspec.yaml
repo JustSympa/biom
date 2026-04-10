@@ -42,8 +42,11 @@ dependencies:
   go_router: ^17.1.0
   flutter_riverpod: ^3.3.1
   riverpod_annotation: ^4.0.2
-  openai_dart: ^2.0.0
   flutter_markdown: ^0.7.7+1
+  shared_preferences: ^2.5.5
+  flutter_dotenv: ^6.0.0
+  flutter_native_splash: ^2.4.7
+  image_picker: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -56,7 +59,6 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -72,6 +74,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - .env.dev
+    - .env.prod
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -104,9 +108,11 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/icon.png"
+  adaptive_icon_background: "#ffffff"
 
 flutter_native_splash:
-  color: "#ffffff"
+  color: "#fafafa"
   image: assets/images/icon.png
+  fullscreen: true
   android_12:
     image: assets/images/icon.png
