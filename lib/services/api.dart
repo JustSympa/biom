@@ -1,5 +1,4 @@
-import 'package:biom/models/diagnosis_data.dart';
-import 'package:biom/models/diagnosis_meta.dart';
+import 'package:biom/models/diagnosis.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
@@ -63,25 +62,6 @@ class API {
       ]
     });
     final response = await dio.post(_Routes.report, data: form);
-    return DiagnosisData(
-      metadata: DiagnosisMeta(
-        id: response.data['id'],
-        createdAt: response.data['createdAt'],
-        plantName: response.data['plantName'],
-        healthStatus: response.data['healthStatus'],
-        severity: response.data['severity'],
-        disease: response.data['disease'],
-        diseaseDescription: response.data['diseaseDescription'],
-        confidence: response.data['confidence'],
-        causes: response.data['causes'],
-        symptoms: response.data['symptoms'],
-        immediateSolutions: response.data['immediateSolutions'],
-        longTermSolutions: response.data['longTermSolutions'],
-        preventionTips: response.data['preventionTips'],
-        longitude: pos.longitude,
-        lattitude: pos.latitude
-        ),
-      report: response.data['report']
-    );
+    return DiagnosisData.fromJSON(response.data);
   }  
 }

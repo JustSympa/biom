@@ -1,0 +1,83 @@
+import 'dart:io';
+
+import 'package:biom/services/api.dart';
+import 'package:biom/services/kv.dart';
+import 'package:biom/state/global.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+
+import 'package:biom/models/processing.dart';
+import 'package:biom/models/diagnosis.dart';
+import 'package:path_provider/path_provider.dart';
+
+final gpsProvider = FutureProvider<Position>((ref) async => 
+  await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high))
+);
+
+final responseProvider = FutureProvider<DiagnosisData>((ref) async {
+  final pos = await ref.watch(gpsProvider.future);
+  final input = ref.watch(diagnosisInputProvider);
+  return await API.simpleReport(pos, input.description, KVS.language, [input.fullPic, input.symptomPic]);
+});
+
+
+final savingProvider = FutureProvider<String>((ref) async {
+  await ref.watch(gpsProvider.future);
+  final diagnosis = await ref.watch(responseProvider.future);
+
+  final directory = await getApplicationDocumentsDirectory();
+  final id = diagnosis.metadata.id;
+  final reportFile = File('${directory.path}/${id.toString()}/report.md');
+  final metaFile = File('${directory.path}/${id.toString()}/metadata.json');
+  await reportFile.writeAsString(diagnosis.report);
+  await metaFile.writeAsString(diagnosis.metadata.toString());
+  return id;
+});
+
+// process_state_provider.dart
+
+final simpleDiagStateProvider = Provider<SimpleDiagnosisState>((ref) {
+  final t1 = ref.watch(gpsProvider);
+  final t2 = ref.watch(responseProvider);
+  final t3 = ref.watch(savingProvider);
+
+  // Walk through steps in order — first unresolved step wins
+  if (t1.isLoading) {
+    return SimpleDiagnosisState(currentStep: SimpleDiagnosisSteps.gps);
+  }
+  if (t1.hasError) {
+    return SimpleDiagnosisState(
+      currentStep: SimpleDiagnosisSteps.gps,
+      hasError: true,
+      errorMessage: t1.error.toString(),
+    );
+  }
+
+  if (t2.isLoading) {
+    return SimpleDiagnosisState(currentStep: SimpleDiagnosisSteps.response);
+  }
+  if (t2.hasError) {
+    return SimpleDiagnosisState(
+      currentStep: SimpleDiagnosisSteps.response,
+      hasError: true,
+      errorMessage: t2.error.toString(),
+    );
+  }
+
+  if (t3.isLoading) {
+    return SimpleDiagnosisState(currentStep: SimpleDiagnosisSteps.save);
+  }
+  if (t3.hasError) {
+    return SimpleDiagnosisState(
+      currentStep: SimpleDiagnosisSteps.save,
+      hasError: true,
+      errorMessage: t3.error.toString(),
+    );
+  }
+
+  // All 3 done successfully
+  return SimpleDiagnosisState(
+    currentStep: SimpleDiagnosisSteps.done,
+    id: t3.value,
+  );
+});

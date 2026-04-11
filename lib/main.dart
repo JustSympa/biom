@@ -1,11 +1,10 @@
-import 'package:biom/api/api.dart';
-import 'package:biom/kv/kv.dart';
-import 'package:biom/palette.dart';
+import 'package:biom/services/api.dart';
+import 'package:biom/services/kv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'router.dart';
+import 'package:biom/screens/router.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +12,7 @@ void main() async {
   const String env = String.fromEnvironment('ENV', defaultValue: 'dev');
   await dotenv.load(fileName: ".env.$env");
   await KVS.init();
+  // await KVS.reset();
   if(!KVS.hasUser) {
     API.init('');
     final refreshToken = await API.initUser();
@@ -34,9 +34,10 @@ class Biom extends ConsumerWidget {
 		final router = ref.watch(routerProvider);
 		return MaterialApp.router(
 			title: 'Biom',
+      debugShowCheckedModeBanner: false,
 			theme: ThemeData(
 				useMaterial3: true,
-					colorScheme: ColorScheme.fromSeed(seedColor: Palette.col500),
+				colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff3c8137)),
 			),
 			routerConfig: router,
 		);

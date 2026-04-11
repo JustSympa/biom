@@ -1,12 +1,15 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
+import 'package:biom/models/diagnosis.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../state/state.dart';
+import 'package:image_picker/image_picker.dart';
+import '../state/global.dart';
 
 class PhotoScreen extends ConsumerStatefulWidget {
-	final String type;
-	const PhotoScreen({super.key, required this.type});
+	const PhotoScreen({super.key});
 
 	@override
 	ConsumerState<PhotoScreen> createState() => _PhotoScreenState();
@@ -15,6 +18,7 @@ class PhotoScreen extends ConsumerStatefulWidget {
 class _PhotoScreenState extends ConsumerState<PhotoScreen> {
 	CameraController? _controller;
 	Future<void>? _initializeControllerFuture;
+  
 
 	@override
 	void initState() {
@@ -26,18 +30,41 @@ class _PhotoScreenState extends ConsumerState<PhotoScreen> {
 		final cameras = await availableCameras();
 		_controller = CameraController(cameras.first, ResolutionPreset.medium, enableAudio: false);
 		setState(() { _initializeControllerFuture = _controller!.initialize(); });
-		ref.read(diagnosisTypeProvider.notifier).state = widget.type;
 	}
 
 	@override
 	void dispose() { _controller?.dispose(); super.dispose(); }
 
 	Future<void> _takePicture() async {
+    final inpuState = ref.read(diagnosisInputProvider);
+    final inputStateNotifier = ref.read(diagnosisInputProvider.notifier);
 		try {
 			await _initializeControllerFuture;
 			final image = await _controller!.takePicture();
-			ref.read(selectedImagePathProvider.notifier).addImage(image.path);
-			if (mounted) context.push('/processing/simple');
+      if (inpuState.fullPic.isEmpty) inputStateNotifier.setFullPicture(image.path);
+      else inputStateNotifier.setSymptomPicture(image.path);
+
+			if (mounted && inpuState.symptomPic.isNotEmpty) {
+        context.pop(); context.push('description');
+      }
+		} catch (e) {
+			debugPrint("Error taking picture: $e");
+		}
+	}
+
+  Future<void> _pickImage() async {
+    final inpuState = ref.read(diagnosisInputProvider);
+    final inputStateNotifier = ref.read(diagnosisInputProvider.notifier);
+		try {
+      final picker = ImagePicker();
+			final image = await picker.pickImage(source: ImageSource.gallery);
+      if(image == null) return;
+      if (inpuState.fullPic.isEmpty) inputStateNotifier.setFullPicture(image.path);
+      else inputStateNotifier.setSymptomPicture(image.path);
+
+			if (mounted && inpuState.symptomPic.isNotEmpty) {
+        context.pop(); context.push('description');
+      }
 		} catch (e) {
 			debugPrint("Error taking picture: $e");
 		}
@@ -45,11 +72,16 @@ class _PhotoScreenState extends ConsumerState<PhotoScreen> {
 
 	@override
 	Widget build(BuildContext context) {
+    final inputState = ref.watch(diagnosisInputProvider);
+
 		return Scaffold(
 			backgroundColor: Colors.black,
 			appBar: AppBar(
-				title: const Text('Photo'),
-				backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(onPressed: _pickImage, icon: const Icon(Icons.folder))
+        ],
+				title: Text(inputState.fullPic.isEmpty ? "Full Picture" : "Symptom Picture"),
+				backgroundColor: Color(0x7F000000),
 				foregroundColor: Colors.white,
 			),
 			body: FutureBuilder<void>(
@@ -62,11 +94,11 @@ class _PhotoScreenState extends ConsumerState<PhotoScreen> {
 								Align(
 									alignment: Alignment.bottomCenter,
 									child: Padding(
-										padding: EdgeInsets.only(bottom: 30),
+										padding: const EdgeInsets.only(bottom: 30),
 										child: FloatingActionButton.large(
 											onPressed: _takePicture,
 											backgroundColor: Colors.white,
-											child: Icon(Icons.camera, color: Colors.black),
+											child: const Icon(Icons.camera, color: Colors.black),
 										),
 									),
 								),

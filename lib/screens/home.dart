@@ -1,6 +1,8 @@
-import 'package:biom/state/state.dart';
+import 'package:biom/services/kv.dart';
+import 'package:biom/models/diagnosis.dart';
+import 'package:biom/state/global.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:biom/components/home/diagnosis_brief.dart';
+import 'package:biom/widgets/home/diagnosis_brief.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,9 +12,20 @@ class HomeScreen extends ConsumerWidget {
 	@override
 	Widget build(BuildContext context, WidgetRef ref) {
     final diagnosisHistory = ref.watch(diagnosisHistoryProvider);
+    final colors = Theme.of(context).colorScheme;
+    if(ref.read(diagnosisInputProvider).type != DiagnosisTypes.unset) ref.read(diagnosisInputProvider.notifier).reset();
 
 		return Scaffold(
-			appBar: AppBar(title: Text('Biom')),
+			appBar: AppBar(
+        backgroundColor: colors.primaryContainer,
+        title: Row(
+          spacing: 12,
+          children: [
+            Icon(Icons.history, size: 36, color: colors.primary ),
+            Text('History', style: TextStyle(color: colors.primary),)
+          ],
+        )
+      ),
 			body: Center(
 				child: diagnosisHistory.when(
           loading: () => Center(
@@ -76,14 +89,14 @@ class HomeScreen extends ConsumerWidget {
         ),
 			),
 			floatingActionButton: FloatingActionButton.extended(
-				onPressed: () => _showInstrutionsDialog(context),
+				onPressed: () => KVS.skipInstructions ? _showSelectionDialog(context, ref) : _showInstrutionsDialog(context, ref),
 				label: const Text('New Diagnosis'),
 				icon: Icon(Icons.add),
 			),
 		);
 		}
 
-  void _showInstrutionsDialog(BuildContext context) {
+  void _showInstrutionsDialog(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
 		showDialog(
 			context: context,
@@ -112,7 +125,7 @@ class HomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('3.', style: TextStyle(fontWeight: FontWeight.bold),),
-              Expanded(child: const Text("Write a small description of what you noticed.", softWrap: true,)),
+              Expanded(child: const Text("Write a small description of what you've noticed.", softWrap: true,)),
             ],
           ),
           Row(
@@ -122,14 +135,15 @@ class HomeScreen extends ConsumerWidget {
               SimpleDialogOption(
                 onPressed: () {
                   context.pop(); // Close dialog
-                  _showSelectionDialog(context);
+                  KVS.skipInstructions = true;
+                  _showSelectionDialog(context, ref);
                 },
-                child: Text('Don\'t Show again', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colors.primary),),
+                child: Text('Skip Instructions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colors.primary),),
               ),
               SimpleDialogOption(
                 onPressed: () {
                   context.pop(); // Close dialog
-                  _showSelectionDialog(context);
+                  _showSelectionDialog(context, ref);
                 },
                 child: Text('Ok', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colors.primary),),
               ),
@@ -146,7 +160,8 @@ class HomeScreen extends ConsumerWidget {
 		);
 	}
 
-	void _showSelectionDialog(BuildContext context) {
+	void _showSelectionDialog(BuildContext context, WidgetRef ref) {
+    final inputState = ref.read(diagnosisInputProvider.notifier);
 		showDialog(
 			context: context,
 			builder: (context) => SimpleDialog(
@@ -154,8 +169,9 @@ class HomeScreen extends ConsumerWidget {
 				children: [
 					SimpleDialogOption(
 						onPressed: () {
-						context.pop(); // Close dialog
-						context.push('/photo/simple');
+              inputState.setType(DiagnosisTypes.simple);
+              context.pop(); // Close dialog
+              context.push('/photo');
 						},
 						child: ListTile(
 						leading: Icon(Icons.bolt),
@@ -165,8 +181,9 @@ class HomeScreen extends ConsumerWidget {
 					),
 					SimpleDialogOption(
 						onPressed: () {
-						context.pop(); // Close dialog
-						context.push('/photo/advanced');
+              inputState.setType(DiagnosisTypes.advanced);
+              context.pop(); // Close dialog
+              context.push('/photo');
 						},
 						child: ListTile(
 						leading: Icon(Icons.settings),

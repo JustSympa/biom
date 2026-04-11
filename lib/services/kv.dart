@@ -21,6 +21,11 @@ class _KVS {
     }
   }
 
+  Future<void> reset() async {
+    await provider.clear();
+    await init();
+  }
+
   String get language => provider.getString(_KVNames.language) ?? '';
   set language(String language) => provider.setString(_KVNames.language, language);
   bool get skipInstructions => provider.getBool(_KVNames.skipInstructions) ?? false;
