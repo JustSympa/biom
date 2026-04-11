@@ -13,7 +13,6 @@ class HomeScreen extends ConsumerWidget {
 	Widget build(BuildContext context, WidgetRef ref) {
     final diagnosisHistory = ref.watch(diagnosisHistoryProvider);
     final colors = Theme.of(context).colorScheme;
-    if(ref.read(diagnosisInputProvider).type != DiagnosisTypes.unset) ref.read(diagnosisInputProvider.notifier).reset();
 
 		return Scaffold(
 			appBar: AppBar(
@@ -169,6 +168,7 @@ class HomeScreen extends ConsumerWidget {
 				children: [
 					SimpleDialogOption(
 						onPressed: () {
+              inputState.reset();
               inputState.setType(DiagnosisTypes.simple);
               context.pop(); // Close dialog
               context.push('/photo');
@@ -181,6 +181,7 @@ class HomeScreen extends ConsumerWidget {
 					),
 					SimpleDialogOption(
 						onPressed: () {
+              inputState.reset();
               inputState.setType(DiagnosisTypes.advanced);
               context.pop(); // Close dialog
               context.push('/photo');

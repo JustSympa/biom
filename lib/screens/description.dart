@@ -21,7 +21,7 @@ class _DescriptionScreenState extends ConsumerState<DescriptionScreen> {
   void _setDescrition() {
     final inputStateNotifier = ref.read(diagnosisInputProvider.notifier);
     inputStateNotifier.setDescription(_controller.text);
-    if(mounted) { context.pop(); context.push('processing'); }
+    if(mounted) { context.pop(); context.push('/processing'); }
   }
   
 	@override
@@ -45,7 +45,7 @@ class _DescriptionScreenState extends ConsumerState<DescriptionScreen> {
           maxLines: null,
           expands: true,
           decoration: const InputDecoration(
-            hintText: "what have you noticed? Type here...",
+            hintText: "What have you noticed? Type here...",
             border: InputBorder.none
           ),
         ),
