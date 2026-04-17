@@ -14,13 +14,15 @@
 			"name": "biom (profile mode)",
 			"request": "launch",
 			"type": "dart",
-			"flutterMode": "profile"
+			"flutterMode": "profile",
+			"args": ["--dart-define=ENV=dev"]
 		},
 		{
 			"name": "biom (release mode)",
 			"request": "launch",
 			"type": "dart",
-			"flutterMode": "release"
+			"flutterMode": "release",
+			"args": ["--dart-define=ENV=prod"]
 		}
 	]
 }

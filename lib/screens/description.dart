@@ -33,7 +33,7 @@ class _DescriptionScreenState extends ConsumerState<DescriptionScreen> {
         title: Row(
           spacing: 12,
           children: [
-            Icon(Icons.description, size: 36, color: colors.primary ),
+            Icon(Icons.search, size: 36, color: colors.primary ),
             Text('Description', style: TextStyle(color: colors.primary),)
           ],
         )
@@ -45,6 +45,7 @@ class _DescriptionScreenState extends ConsumerState<DescriptionScreen> {
           maxLines: null,
           expands: true,
           decoration: const InputDecoration(
+            hintStyle: TextStyle(color: Colors.grey),
             hintText: "What have you noticed? Type here...",
             border: InputBorder.none
           ),

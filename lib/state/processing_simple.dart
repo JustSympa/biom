@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:biom/services/api.dart';
 import 'package:biom/services/kv.dart';
 import 'package:biom/state/global.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -40,20 +42,29 @@ final gpsProvider = FutureProvider<Position>((ref) async {
 final responseProvider = FutureProvider<DiagnosisData>((ref) async {
   final pos = await ref.watch(gpsProvider.future);
   final input = ref.watch(diagnosisInputProvider);
-  return await API.simpleReport(pos, input.description, KVS.language, [input.fullPic, input.symptomPic]);
+  return await API.simpleReport(pos, input.description, KVS.language, [input.fullPic, input.fullPicName, input.symptomPic, input.symptomPicName]);
 });
 
 
 final savingProvider = FutureProvider<String>((ref) async {
   await ref.watch(gpsProvider.future);
   final diagnosis = await ref.watch(responseProvider.future);
+  debugPrint('Report Generated successfully');
+
+  final input = ref.watch(diagnosisInputProvider);
+  input.symptomPic;
 
   final directory = await getApplicationDocumentsDirectory();
   final id = diagnosis.metadata.id;
-  final reportFile = File('${directory.path}/${id.toString()}/report.md');
-  final metaFile = File('${directory.path}/${id.toString()}/metadata.json');
+  await Directory('${directory.path}/reports/${id.toString()}').create();
+  await File(input.symptomPic).copy('${directory.path}/reports/${id.toString()}/image${input.symptomPicName.split('.')[-1]}');
+  final reportFile = File('${directory.path}/reports/${id.toString()}/report.md');
+  final metaFile = File('${directory.path}/reports/${id.toString()}/metadata.json');
+  debugPrint('Saving Report');
   await reportFile.writeAsString(diagnosis.report);
-  await metaFile.writeAsString(diagnosis.metadata.toString());
+  debugPrint('Saving Metadata');
+  final json = diagnosis.metadata.toJSON();
+  await metaFile.writeAsString(jsonEncode(json));
   return id;
 });
 

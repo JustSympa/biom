@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/rendering.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:biom/models/diagnosis.dart';
@@ -14,6 +15,7 @@ class _DiagnosisHistoryNotifier extends AsyncNotifier<List<DiagnosisMeta>> {
   Future<List<DiagnosisMeta>> loadFromStorage() async {
     final appdir = await getApplicationDocumentsDirectory();
     final reportsdir = Directory(p.join(appdir.path, 'reports'));
+    // if(reportsdir.existsSync()) await reportsdir.delete(recursive: true);
     if(!reportsdir.existsSync()) {
       reportsdir.createSync();
       return [];
@@ -21,25 +23,9 @@ class _DiagnosisHistoryNotifier extends AsyncNotifier<List<DiagnosisMeta>> {
     final List<FileSystemEntity> reports = reportsdir.listSync();
     final result = <DiagnosisMeta>[];
     for (var element in reports) {
-      final metaFile = File(p.join(element.path, 'meta.json')).readAsStringSync();
-      final metaData = await jsonDecode(metaFile);
-      result.add(DiagnosisMeta(
-        id: metaData['id'],
-        createdAt: metaData['createdAt'],
-        plantName: metaData['plantName'],
-        healthStatus: metaData['healthStatus'],
-        severity: metaData['severity'],
-        disease: metaData['disease'],
-        diseaseDescription: metaData['diseaseDescription'],
-        confidence: metaData['confidence'],
-        causes: metaData['causes'],
-        symptoms: metaData['symptoms'],
-        immediateSolutions: metaData['immediateSolutions'],
-        longTermSolutions: metaData['longTermSolutions'],
-        preventionTips: metaData['preventionTips'],
-        longitude: metaData['longitude'],
-        lattitude: metaData['lattitude']
-      ));
+      final metaFile = File(p.join(element.path, 'metadata.json')).readAsStringSync();
+      final metaData = jsonDecode(metaFile);
+      result.add(DiagnosisMeta.fromJSON(metaData));
     }
     return result;
   }
@@ -55,6 +41,8 @@ class _DiagnosisInputProvider extends Notifier<DiagnosisInput> {
   void setType(DiagnosisTypes type) { state = state.copyWith(type: type); }
   void setFullPicture(String path) { state = state.copyWith(fullPic: path); }
   void setSymptomPicture(String path) { state = state.copyWith(symptomPic: path); }
+  void setFullPictureName(String name) { state = state.copyWith(fullPicName: name); }
+  void setSymptomPictureName(String name) { state = state.copyWith(symptomPicName: name); }
   void setDescription(String desc) { state = state.copyWith(description: desc); }
   void setQuestions(List<DiagnosisQA> qa) { state = state.copyWith(qa: qa); }
   void setAnswer(int i, String answer) {

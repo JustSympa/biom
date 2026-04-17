@@ -37,7 +37,7 @@ class SimpleDiagnosisState {
       case SimpleDiagnosisSteps.gps:
         return 'Loading GPS info...';
       case SimpleDiagnosisSteps.response:
-        return 'Analysing and Generating Report...';
+        return 'Analyzing and Generating Report...';
       case SimpleDiagnosisSteps.save:
         return 'Saving report...';
       case SimpleDiagnosisSteps.done:

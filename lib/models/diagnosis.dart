@@ -16,7 +16,7 @@ class DiagnosisMeta {
 	final List<String> longTermSolutions;
   final List<String> preventionTips;
   final double longitude;
-  final double lattitude; 
+  final double latitude; 
   const DiagnosisMeta({
     required this.id, 
     required this.createdAt, 
@@ -32,28 +32,71 @@ class DiagnosisMeta {
     required this.longTermSolutions,
     required this.preventionTips,
     required this.longitude,
-    required this.lattitude
+    required this.latitude
   });
+  factory DiagnosisMeta.fromJSON(Map<String, dynamic> json) {
+    return DiagnosisMeta(
+      id: json['id'],
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      plantName: json['plantName'],
+      healthStatus: json['healthStatus'],
+      severity: json['severity'],
+      disease: json['disease'],
+      diseaseDescription: json['diseaseDescription'],
+      confidence: (json['confidence'] as num).toDouble(),
+      causes: List<String>.from(json['causes'] ?? const []),
+      symptoms: List<String>.from(json['symptoms'] ?? const []),
+      immediateSolutions: List<String>.from(json['immediateSolutions'] ?? const []),
+      longTermSolutions: List<String>.from(json['longTermSolutions'] ?? const []),
+      preventionTips: List<String>.from(json['preventionTips'] ?? const []),
+      longitude: (json['longitude'] as num).toDouble(),
+      latitude: (json['latitude'] as num).toDouble()
+    );
+  }
+  Map<String, dynamic> toJSON() {
+    final result = <String, dynamic>{};
+    result['id'] = id;
+    result['createdAt'] = createdAt.toIso8601String();
+    result['plantName'] = plantName;
+    result['healthStatus'] = healthStatus;
+    result['severity'] = severity;
+    result['disease'] = disease;
+    result['diseaseDescription'] = diseaseDescription;
+    result['confidence'] = confidence;
+    result['causes'] = causes;
+    result['symptoms'] = symptoms;
+    result['immediateSolutions'] = immediateSolutions;
+    result['longTermSolutions'] = longTermSolutions;
+    result['preventionTips'] = preventionTips;
+    result['longitude'] = longitude;
+    result['latitude'] = latitude;
+    return result;
+  }
 }
 
 class DiagnosisData {
   final DiagnosisMeta metadata;
   final String report;
-  const DiagnosisData({required this.metadata, required this.report});
+  const DiagnosisData({required this.metadata,
+    required this.report});
   factory DiagnosisData.fromJSON(Map<String, dynamic> json) {
     return DiagnosisData(
       metadata: DiagnosisMeta(
         id: json['id'],
-        createdAt: json['createdAt'],
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        plantName: json['plantName'],
         healthStatus: json['healthStatus'],
-        confidence: json['confidence'],
-        causes: json['causes'],
-        symptoms: json['symptoms'],
-        immediateSolutions: json['immediateSolutions'],
-        longTermSolutions: json['longTermSolutions'],
-        preventionTips: json['preventionTips'],
-        longitude: json['longitude'],
-        lattitude: json['lattitude']
+        severity: json['severity'],
+        disease: json['disease'],
+        diseaseDescription: json['diseaseDescription'],
+        confidence: (json['confidence'] as num).toDouble(),
+        causes: List<String>.from(json['causes'] ?? const []),
+        symptoms: List<String>.from(json['symptoms'] ?? const []),
+        immediateSolutions: List<String>.from(json['immediateSolutions'] ?? const []),
+        longTermSolutions: List<String>.from(json['longTermSolutions'] ?? const []),
+        preventionTips: List<String>.from(json['preventionTips'] ?? const []),
+        longitude: (json['longitude'] as num).toDouble(),
+        latitude: (json['latitude'] as num).toDouble()
       ),
       report: json['report']
     );
@@ -70,14 +113,18 @@ class DiagnosisInput {
   DiagnosisTypes type = DiagnosisTypes.unset;
   String fullPic = '';
   String symptomPic = '';
+  String fullPicName = '';
+  String symptomPicName = '';
   String description = '';
   List<DiagnosisQA> qa = [];
 
-  DiagnosisInput copyWith({DiagnosisTypes? type, String? fullPic, String? symptomPic, String? description, List<DiagnosisQA>? qa}) {
+  DiagnosisInput copyWith({DiagnosisTypes? type, String? fullPic, String? symptomPic, String? fullPicName, String? symptomPicName, String? description, List<DiagnosisQA>? qa}) {
     var result = DiagnosisInput();
     result.type = type ?? this.type;
     result.fullPic = fullPic ?? this.fullPic;
     result.symptomPic = symptomPic ?? this.symptomPic;
+    result.fullPicName = fullPicName ?? this.fullPicName;
+    result.symptomPicName = symptomPicName ?? this.symptomPicName;
     result.description = description ?? this.description;
     result.qa = qa ?? this.qa;
     return result;

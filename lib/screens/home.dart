@@ -51,8 +51,8 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   const Icon(Icons.warning, size: 32, color: Colors.red,),
                   const SizedBox(height: 24),
-                  const Text(
-                    "Something went wrong!",
+                  Text(
+                    "Something went wrong!\n\n ${error.toString()}",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
                   ),
                 ],
@@ -81,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
               return ListView.builder(
                 itemCount: data.length,
                 itemBuilder:(context, index) => DiagnosisbriefWidget(diag: data[index]),
-                padding: const EdgeInsets.only(bottom: 40.0),
+                padding: const EdgeInsets.only(top: 10.0, left: 10.0, bottom: 40.0, right: 10),
               );
             }
           }

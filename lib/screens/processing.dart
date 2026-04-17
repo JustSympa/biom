@@ -11,13 +11,14 @@ import 'package:go_router/go_router.dart';
 class ProcessingScreen extends ConsumerWidget {
   const ProcessingScreen({super.key});
 
+  void _onSeeReport(String id, BuildContext context) {
+      context.pop(); context.push('/report/$id');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(simpleDiagStateProvider);
-
-    if(state.currentStep == SimpleDiagnosisSteps.done) {
-      context.pop(); context.push('/report/${state.id}');
-    }
+    final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +30,16 @@ class ProcessingScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if(!state.hasError) ...[
+              if(state.id != null) ...[
+                Icon(Icons.check_circle, color: colors.primary, size: 36.0,),
+                const SizedBox(height: 24),
+                Text( state.userMessage,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                TextButton(onPressed: () => _onSeeReport(state.id!, context), child: const Text('See Report'))
+              ]
+              else if(!state.hasError) ...[
                 const CircularProgressIndicator(),
                 const SizedBox(height: 24),
                 Text( state.userMessage,

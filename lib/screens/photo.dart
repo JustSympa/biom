@@ -16,9 +16,13 @@ class PhotoScreen extends ConsumerWidget {
       final picker = ImagePicker();
 			final image = await picker.pickImage(source: source);
       if(image == null) return;
-      if (inpuState.fullPic.isEmpty) inputStateNotifier.setFullPicture(image.path);
+      if (inpuState.fullPic.isEmpty) {
+        inputStateNotifier.setFullPicture(image.path);
+        inputStateNotifier.setFullPictureName(image.name);
+      }
       else {
         inputStateNotifier.setSymptomPicture(image.path);
+        inputStateNotifier.setSymptomPictureName(image.name);
         context.pop(); context.push('/description');
       }
 		} catch (e) {

@@ -18,6 +18,10 @@ class _KVS {
       provider.setBool(_KVNames.defaultKey, true);
       provider.setBool(_KVNames.skipInstructions, false);
       provider.setString(_KVNames.language, WidgetsBinding.instance.platformDispatcher.locale.languageCode.substring(0, 2));
+    } else {
+      debugPrint('Loaded Settings');
+      debugPrint('lang : $language');
+      debugPrint('rTok : $refreshToken');
     }
   }
 
