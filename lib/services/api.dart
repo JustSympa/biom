@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:biom/models/diagnosis.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/rendering.dart';

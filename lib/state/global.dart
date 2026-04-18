@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/rendering.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:biom/models/diagnosis.dart';
@@ -15,23 +14,34 @@ class _DiagnosisHistoryNotifier extends AsyncNotifier<List<DiagnosisMeta>> {
   Future<List<DiagnosisMeta>> loadFromStorage() async {
     final appdir = await getApplicationDocumentsDirectory();
     final reportsdir = Directory(p.join(appdir.path, 'reports'));
-    // if(reportsdir.existsSync()) await reportsdir.delete(recursive: true);
-    if(!reportsdir.existsSync()) {
-      reportsdir.createSync();
+    // if(await reportsdir.exists()) await reportsdir.delete(recursive: true);
+    if(!await reportsdir.exists()) {
+      await reportsdir.create();
       return [];
     }
     final List<FileSystemEntity> reports = reportsdir.listSync();
     final result = <DiagnosisMeta>[];
     for (var element in reports) {
-      final metaFile = File(p.join(element.path, 'metadata.json')).readAsStringSync();
-      final metaData = jsonDecode(metaFile);
+      final metaFile = File(p.join(element.path, 'metadata.json'));
+      if(!(await metaFile.exists())) {
+        await element.delete(recursive: true);
+        continue;
+      }
+      final metaData = jsonDecode(await metaFile.readAsString());
       result.add(DiagnosisMeta.fromJSON(metaData));
     }
     return result;
   }
 
-  void addDiagnosis(DiagnosisMeta diagnosis) { state = AsyncData([...state.value!, diagnosis]); }
-  void deleteDiagnosis(String id) { state = AsyncData(state.value!.where((v) => v.id != id).toList()); }
+  void addDiagnosis(DiagnosisMeta diagnosis) {
+    state = AsyncData([...state.value!, diagnosis]);
+  }
+  void deleteDiagnosis(String id) async {
+    final appdir = await getApplicationDocumentsDirectory();
+    final reportdir = Directory(p.join(appdir.path, 'reports', id));
+    if(reportdir.existsSync()) await reportdir.delete(recursive: true);
+    state = AsyncData(state.value!.where((v) => v.id != id).toList());
+  }
 }
 final diagnosisHistoryProvider = AsyncNotifierProvider<_DiagnosisHistoryNotifier, List<DiagnosisMeta>>(_DiagnosisHistoryNotifier.new);
 

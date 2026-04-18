@@ -1,4 +1,3 @@
-// ignore_for_file: unused_local_variable, prefer_function_declarations_over_variables
 
 import 'package:biom/models/processing.dart';
 import 'package:biom/state/processing_simple.dart';
@@ -30,7 +29,7 @@ class ProcessingScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if(state.id != null) ...[
+              if(state.currentStep == SimpleDiagnosisSteps.done) ...[
                 Icon(Icons.check_circle, color: colors.primary, size: 36.0,),
                 const SizedBox(height: 24),
                 Text( state.userMessage,

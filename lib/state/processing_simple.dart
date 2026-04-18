@@ -7,6 +7,7 @@ import 'package:biom/state/global.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:path/path.dart' as p;
 
 import 'package:biom/models/processing.dart';
 import 'package:biom/models/diagnosis.dart';
@@ -42,29 +43,30 @@ final gpsProvider = FutureProvider<Position>((ref) async {
 final responseProvider = FutureProvider<DiagnosisData>((ref) async {
   final pos = await ref.watch(gpsProvider.future);
   final input = ref.watch(diagnosisInputProvider);
-  return await API.simpleReport(pos, input.description, KVS.language, [input.fullPic, input.fullPicName, input.symptomPic, input.symptomPicName]);
+  final result = await API.simpleReport(pos, input.description, KVS.language, [input.fullPic, input.fullPicName, input.symptomPic, input.symptomPicName]);
+  final directory = await getApplicationDocumentsDirectory();
+  await Directory('${directory.path}/reports/${result.metadata.id}').create();
+  await File(input.symptomPic).copy('${directory.path}/reports/${result.metadata.id}/image${p.extension(input.symptomPicName)}');
+  return result;
 });
 
 
 final savingProvider = FutureProvider<String>((ref) async {
   await ref.watch(gpsProvider.future);
   final diagnosis = await ref.watch(responseProvider.future);
+  final diagnosisHistory = ref.read(diagnosisHistoryProvider.notifier);
   debugPrint('Report Generated successfully');
-
-  final input = ref.watch(diagnosisInputProvider);
-  input.symptomPic;
 
   final directory = await getApplicationDocumentsDirectory();
   final id = diagnosis.metadata.id;
-  await Directory('${directory.path}/reports/${id.toString()}').create();
-  await File(input.symptomPic).copy('${directory.path}/reports/${id.toString()}/image${input.symptomPicName.split('.')[-1]}');
-  final reportFile = File('${directory.path}/reports/${id.toString()}/report.md');
-  final metaFile = File('${directory.path}/reports/${id.toString()}/metadata.json');
+  final reportFile = File('${directory.path}/reports/$id/report.md');
+  final metaFile = File('${directory.path}/reports/$id/metadata.json');
   debugPrint('Saving Report');
   await reportFile.writeAsString(diagnosis.report);
   debugPrint('Saving Metadata');
   final json = diagnosis.metadata.toJSON();
   await metaFile.writeAsString(jsonEncode(json));
+  diagnosisHistory.addDiagnosis(diagnosis.metadata);
   return id;
 });
 

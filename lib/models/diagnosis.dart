@@ -1,6 +1,4 @@
 
-import 'dart:convert';
-
 class DiagnosisMeta {
   final String id;
   final DateTime createdAt;

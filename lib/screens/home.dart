@@ -78,10 +78,11 @@ class HomeScreen extends ConsumerWidget {
                 ),
               );
             } else {
-              return ListView.builder(
+              return ListView.separated(
                 itemCount: data.length,
-                itemBuilder:(context, index) => DiagnosisbriefWidget(diag: data[index]),
-                padding: const EdgeInsets.only(top: 10.0, left: 10.0, bottom: 40.0, right: 10),
+                itemBuilder:(context, index) => DiagnosisBriefWidget(diag: data[index]),
+                separatorBuilder: (context, index) => const SizedBox(height: 12.0),
+                padding: const EdgeInsets.all(10.0),
               );
             }
           }

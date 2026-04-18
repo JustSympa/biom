@@ -3,13 +3,28 @@
 import 'dart:io';
 
 import 'package:biom/models/diagnosis.dart';
+import 'package:biom/state/global.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DiagnosisbriefWidget extends StatelessWidget {
+class DiagnosisBriefWidget extends ConsumerStatefulWidget {
   final DiagnosisMeta diag;
-  const DiagnosisbriefWidget({super.key, required this.diag});
+  const DiagnosisBriefWidget({super.key, required this.diag});
+
+  @override
+  ConsumerState<DiagnosisBriefWidget> createState() => _DiagnosisBriefWidgetState();
+}
+
+class _DiagnosisBriefWidgetState extends ConsumerState<DiagnosisBriefWidget> {
+  late Future<String?> _imageURLFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageURLFuture = _getImageURL();
+  }
 
   IconData iconFromState(String state) {
     if(state == 'healthy') return Icons.health_and_safety;
@@ -20,7 +35,7 @@ class DiagnosisbriefWidget extends StatelessWidget {
 
   Future<String?> _getImageURL() async {
     final doc = await getApplicationDocumentsDirectory();
-    final files = Directory('${doc.path}/reports/${diag.id}').listSync();
+    final files = Directory('${doc.path}/reports/${widget.diag.id}').listSync();
     for(var f in files) {
       if(f.path.contains('image.')) return f.path;
     }
@@ -29,6 +44,8 @@ class DiagnosisbriefWidget extends StatelessWidget {
 
   void _showDeletionDialog(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final diagnosisHistory = ref.read(diagnosisHistoryProvider.notifier);
+    
 		showDialog(
 			context: context,
 			builder: (context) => SimpleDialog(
@@ -46,6 +63,7 @@ class DiagnosisbriefWidget extends StatelessWidget {
               SimpleDialogOption(
                 onPressed: () {
                   context.pop(); // Close dialog
+                  diagnosisHistory.deleteDiagnosis(widget.diag.id);
                 },
                 child: Text('Yes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colors.primary),),
               ),
@@ -71,7 +89,7 @@ class DiagnosisbriefWidget extends StatelessWidget {
         
       },
       onTap: () {
-        context.push('/report/${diag.id}');
+        context.push('/report/${widget.diag.id}');
       },
       child: Container(
         padding: const EdgeInsets.all(12.0),
@@ -82,17 +100,40 @@ class DiagnosisbriefWidget extends StatelessWidget {
         child: Row(
           spacing: 12.0,
           children: [
-            Icon(
-              iconFromState(diag.healthStatus),
-              size: 64.0,
-              ),
+            FutureBuilder<String?>(
+              future: _imageURLFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: Image.file(
+                      File(snapshot.data!),
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Icon(
+                    iconFromState(widget.diag.healthStatus),
+                    size: 64.0,
+                  );
+                } else {
+                  return const SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4.0,
                 children: [
-                  Text('${diag.plantName!.substring(0, 36)}...', textScaler: const TextScaler.linear(1.25), style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),),
-                  Text(diag.createdAt.toString(), style: const TextStyle( color: Colors.grey),)
+                  Text('${widget.diag.plantName!.substring(0, 36)}...', textScaler: const TextScaler.linear(1.25), style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),),
+                  Text(widget.diag.createdAt.toString(), style: const TextStyle( color: Colors.grey),)
                 ],
               ),
             ),
