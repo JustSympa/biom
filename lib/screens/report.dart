@@ -82,7 +82,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
           }
           else {
-            return Expanded(
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Markdown(
                 data: snapshot.data ?? 'Nothing to Display',
                 selectable: true,
